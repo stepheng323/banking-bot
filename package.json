@@ -6,7 +6,7 @@
     "prisma:generate": "prisma generate --schema=libs/db/src/lib/prisma/schema.prisma",
     "prisma:migrate": "prisma migrate dev --schema=libs/db/src/lib/prisma/schema.prisma",
     "prisma:studio": "prisma studio --schema=libs/db/src/lib/prisma/schema.prisma",
-    "prisma:formjat": "prisma format --schema=libs/db/src/lib/prisma/schema.prisma",
+    "prisma:format": "prisma format --schema=libs/db/src/lib/prisma/schema.prisma",
     "deploy:handler": "bash scripts/handler.predeploy.sh",
     "deploy:consumer": "bash scripts/consumer.predeploy.sh"
   },
