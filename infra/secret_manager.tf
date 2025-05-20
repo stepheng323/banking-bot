@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "app_secrets_version" {
-  name = "app_secrets"
+  name = "banking_bot_secrets"
 }
 
 resource "aws_secretsmanager_secret_version" "app_secrets_version" {
