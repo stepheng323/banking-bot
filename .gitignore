@@ -43,4 +43,16 @@ Thumbs.db
 
 
 .env
-./infra/.terraform/
+# Terraform files
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.*
+infra/crash.log
+infra/*.tfvars
+infra/.terraform.lock.hcl
+
+# Local .terraform directories
+**/.terraform/*
+
+# Provider binary
+infra/.terraform/providers/registry.terraform.io/hashicorp/aws/5.98.0/linux_amd64/terraform-provider-aws_v5.98.0_x5
