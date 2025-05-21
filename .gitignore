@@ -50,7 +50,6 @@ infra/*.tfstate.*
 infra/crash.log
 infra/*.tfvars
 infra/.terraform.lock.hcl
-
 # Local .terraform directories
 **/.terraform/*
 
