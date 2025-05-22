@@ -8,8 +8,9 @@
     "prisma:studio": "prisma studio --schema=libs/db/src/lib/prisma/schema.prisma",
     "prisma:format": "prisma format --schema=libs/db/src/lib/prisma/schema.prisma",
     "deploy:handler": "bash scripts/handler.predeploy.sh",
-    "deploy:consumer": "bash scripts/consumer.predeploy.sh"
-  },
+    "deploy:consumer": "bash scripts/consumer.predeploy.sh",
+    "deploy:all": "bash scripts/handler.predeploy.sh && bash scripts/consumer.predeploy.sh && cd infra && terraform apply -var-file=\"terraform.tfvars\" -auto-approve"
+},
   "private": true,
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.804.0",
@@ -34,11 +35,11 @@
     "@nestjs/testing": "^10.0.2",
     "@nx/eslint": "21.0.0",
     "@nx/eslint-plugin": "21.0.0",
-    "@nx/js": "21.0.0",
+    "@nx/js": "^21.0.0",
     "@nx/nest": "21.0.0",
     "@nx/node": "21.0.0",
     "@nx/web": "21.0.0",
-    "@nx/webpack": "21.0.0",
+    "@nx/webpack": "^21.0.0",
     "@nx/workspace": "21.0.0",
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",

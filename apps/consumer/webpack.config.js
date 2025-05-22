@@ -2,8 +2,16 @@ const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { join } = require('path');
 
 module.exports = {
+  target: 'node',
+  mode: 'production',
+  entry: './src/main.lambda.ts',
   output: {
     path: join(__dirname, '../../dist/apps/consumer'),
+    filename: 'main.js',
+    libraryTarget: 'commonjs2',
+  },
+  resolve: {
+    extensions: ['.ts', '.js'],
   },
   plugins: [
     new NxAppWebpackPlugin({

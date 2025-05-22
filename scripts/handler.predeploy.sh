@@ -15,5 +15,5 @@ npm ci --omit=dev --prefix $DIST_DIR
 
 echo "🗜️  Creating ZIP archive..."
 cd $DIST_DIR
-zip -r "../../${APP_NAME}.zip" .
+zip -r "../../${APP_NAME}.zip" ./*
 cd -

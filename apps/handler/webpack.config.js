@@ -7,7 +7,7 @@ module.exports = {
   entry: './src/main.lambda.ts',
   output: {
     path: join(__dirname, '../../dist/apps/handler'),
-    filename: 'index.js',
+    filename: 'main.js',
     libraryTarget: 'commonjs2',
   },
   resolve: {

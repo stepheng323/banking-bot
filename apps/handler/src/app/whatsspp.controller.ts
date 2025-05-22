@@ -1,14 +1,16 @@
-import { Controller, Get, Req, Res, Post, Body } from '@nestjs/common';
+import { Controller, Get, Req, Res, Post, Body, Logger } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { WhatsappService } from './whatsapp.service';
-import { WhatsAppWebhookPayload } from '@bank-bot/types'
-import  { QueueClient } from '@bank-bot/aws';
+import { WhatsAppWebhookPayload } from '@bank-bot/types';
+import { QueueClient } from '@bank-bot/aws';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('whatsapp-webhook')
 export class WhatsAppController {
   constructor(
     private readonly sqsService: QueueClient,
     private whatsAppService: WhatsappService,
+    private secrets: ConfigService
   ) {}
 
   @Get('')
@@ -31,13 +33,16 @@ export class WhatsAppController {
   @Post('')
   async handleMessage(
     @Res() res: Response,
-    @Body() body: WhatsAppWebhookPayload,
+    @Body() body: WhatsAppWebhookPayload
   ) {
     try {
       const parsedMessage = this.whatsAppService.parseWhatsAppMessage(body);
       if (!parsedMessage) return res.sendStatus(400);
-      this.sqsService.enqueue({queueUrl: process.env.AWS_QUEUE_URL, messageBody: JSON.stringify(parsedMessage)});
-      res.sendStatus(200);
+      await this.sqsService.enqueue({
+        queueUrl: process.env.AWS_QUEUE_URL,
+        messageBody: JSON.stringify(parsedMessage)
+      });
+      return res.sendStatus(200);
     } catch (error) {
       console.error('Error in WhatsApp Webhook Message Handling', error);
       res.sendStatus(500);

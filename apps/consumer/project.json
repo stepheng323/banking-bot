@@ -13,12 +13,17 @@
       },
       "configurations": {
         "development": {
-          "args": ["node-env=development"]
+          "args": ["node-env=development", "--entry=apps/consumer/src/main.ts"]
+        },
+        "production": {
+          "args": [
+            "node-env=production",
+            "--entry=apps/consumer/src/main.lambda.ts"
+          ]
         }
       }
     },
     "serve": {
-      "continuous": true,
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "dependsOn": ["build"],
