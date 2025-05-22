@@ -17,4 +17,3 @@ echo "🗜️  Creating ZIP archive..."
 cd $DIST_DIR
 zip -r "../../${APP_NAME}.zip" .
 cd -
-

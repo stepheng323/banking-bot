@@ -1,9 +1,11 @@
 resource "aws_lambda_function" "handler" {
   function_name = "handler"
   filename      = "../dist/handler.zip"
-  handler       = "main.handler"
+  handler       = "index.handler"
   runtime       = "nodejs18.x"
   role          = aws_iam_role.lambda_exec.arn
+  memory_size   = 512
+  timeout       = 30
 
     source_code_hash = filebase64sha256("../dist/handler.zip")
 
