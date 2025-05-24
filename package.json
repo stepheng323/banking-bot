@@ -10,10 +10,12 @@
     "deploy:handler": "bash scripts/handler.predeploy.sh",
     "deploy:consumer": "bash scripts/consumer.predeploy.sh",
     "deploy:all": "bash scripts/handler.predeploy.sh && bash scripts/consumer.predeploy.sh && cd infra && terraform apply -var-file=\"terraform.tfvars\" -auto-approve"
-},
+  },
   "private": true,
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.804.0",
+    "@keyv/redis": "^4.4.0",
+    "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^10.0.2",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^10.0.2",
@@ -21,6 +23,7 @@
     "@vendia/serverless-express": "^4.12.6",
     "aws-lambda": "^1.0.7",
     "axios": "^1.6.0",
+    "cache-manager": "^6.4.3",
     "ioredis": "^5.6.1",
     "kysely": "^0.28.2",
     "openai": "^4.97.0",

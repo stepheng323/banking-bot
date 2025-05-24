@@ -26,13 +26,13 @@ export class WhatsappService {
         return {
           kind: 'text',
           ...base,
-          text: message.text?.body || '',
+          content: message.text?.body || '',
         };
       case 'image':
         return {
           kind: 'image',
           ...base,
-          mediaId: message.image?.id || '',
+          content: message.image?.id || '',
           mimeType: message.image?.mime_type || '',
           caption: message.image?.caption,
         };
@@ -40,7 +40,7 @@ export class WhatsappService {
         return {
           kind: 'audio',
           ...base,
-          mediaId: message.audio?.id || '',
+          content: message.audio?.id || '',
           mimeType: message.audio?.mime_type || '',
         };
       default:

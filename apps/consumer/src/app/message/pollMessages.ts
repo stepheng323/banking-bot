@@ -24,7 +24,9 @@ export class PollMessages implements OnModuleInit {
           console.log('Starting SQS polling...');
             const messages = await this.client.receiveMessages({ queueUrl, maxMessages: 10, waitTimeSeconds: 20 });
   
-            for (const msg of messages) {              
+            for (const msg of messages) {
+              console.log('Received message:', msg.Body);
+                            
               try {
                 await this.handleUserMessage.handleMessage(JSON.parse(msg.Body));
                 await this.client.deleteMessage({ queueUrl, receiptHandle: msg.ReceiptHandle });

@@ -1,5 +1,5 @@
 import {OpenAI} from 'openai';
-import {  defaultSystemPrompt } from './constants';
+import {  unifiedSystemPrompt } from './constants';
 
 
 export class OpenAiService {
@@ -11,12 +11,12 @@ constructor() {
     });
   }
 
-  async generateReply(prompt: string, systemPrompt: string = defaultSystemPrompt): Promise<string> {
+  async generateReply(userInput: string, prompt: string = unifiedSystemPrompt): Promise<string> {
     const chatCompletion = await this.openai.chat.completions.create({
       model: "o4-mini",
       messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt },
+        { role: 'system', content: prompt },
+        { role: 'user', content: userInput },
       ],
     });
 

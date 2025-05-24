@@ -1,8 +1,10 @@
 import * as dotenv from 'dotenv';
 import { SecretsManager } from 'aws-sdk';
+import { Injectable } from '@nestjs/common';
 
 dotenv.config();
 
+@Injectable()
 export class ConfigService {
   private static instance: ConfigService;
   private secrets: Record<string, string> | null = null;

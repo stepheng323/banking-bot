@@ -1,9 +1,10 @@
-import { Module } from "@nestjs/common";
-import { UserRepo } from "./user.repo";
+import { Global, Module } from '@nestjs/common';
+import { KyselyService } from '../kysely.service';
+import { UserRepo } from './user.repo';
 
+@Global()
 @Module({
-  providers: [UserRepo],
+  providers: [KyselyService, UserRepo],
   exports: [UserRepo],
 })
-
 export class RepoModule {}

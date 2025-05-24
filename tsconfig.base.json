@@ -16,7 +16,6 @@
     "baseUrl": ".",
     "paths": {
       "@bank-bot/aws": ["libs/aws/src/index.ts"],
-      "@bank-bot/cache": ["libs/cache/src/index.ts"],
       "@bank-bot/config": ["libs/config/src/index.ts"],
       "@bank-bot/db": ["libs/db/src/index.ts"],
       "@bank-bot/nlp": ["libs/nlp/src/index.ts"],

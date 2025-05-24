@@ -1,10 +1,12 @@
 const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { join } = require('path');
 
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 module.exports = {
   target: 'node',
-  mode: 'production',
-  entry: './src/main.lambda.ts',
+  mode: isDevelopment ? 'development' : 'production',
+  entry: isDevelopment ? './src/main.ts' : './src/main.lambda.ts',
   output: {
     path: join(__dirname, '../../dist/apps/handler'),
     filename: 'main.js',
@@ -17,10 +19,10 @@ module.exports = {
     new NxAppWebpackPlugin({
       target: 'node',
       compiler: 'tsc',
-      main: './src/main.lambda.ts',
+      main: isDevelopment ? './src/main.ts' : './src/main.lambda.ts',
       tsConfig: './tsconfig.app.json',
-      optimization: false,
-      outputHashing: 'none',
+      optimization: !isDevelopment,
+      outputHashing: isDevelopment ? 'none' : 'all',
       generatePackageJson: true,
     }),
   ],

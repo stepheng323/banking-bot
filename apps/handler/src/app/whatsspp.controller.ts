@@ -3,14 +3,13 @@ import { Request, Response } from 'express';
 import { WhatsappService } from './whatsapp.service';
 import { WhatsAppWebhookPayload } from '@bank-bot/types';
 import { QueueClient } from '@bank-bot/aws';
-import { ConfigService } from '@nestjs/config';
+import logger from '@vendia/serverless-express/src/logger';
 
 @Controller('whatsapp-webhook')
 export class WhatsAppController {
   constructor(
     private readonly sqsService: QueueClient,
-    private whatsAppService: WhatsappService,
-    private secrets: ConfigService
+    private whatsAppService: WhatsappService
   ) {}
 
   @Get('')
@@ -38,9 +37,12 @@ export class WhatsAppController {
     try {
       const parsedMessage = this.whatsAppService.parseWhatsAppMessage(body);
       if (!parsedMessage) return res.sendStatus(400);
+      Logger.log(
+        `Received WhatsApp message from ${parsedMessage.from}: ${parsedMessage.content}`
+      );
       await this.sqsService.enqueue({
         queueUrl: process.env.AWS_QUEUE_URL,
-        messageBody: JSON.stringify(parsedMessage)
+        messageBody: JSON.stringify(parsedMessage),
       });
       return res.sendStatus(200);
     } catch (error) {
