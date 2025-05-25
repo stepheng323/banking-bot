@@ -3,7 +3,6 @@ import { Request, Response } from 'express';
 import { WhatsappService } from './whatsapp.service';
 import { WhatsAppWebhookPayload } from '@bank-bot/types';
 import { QueueClient } from '@bank-bot/aws';
-import logger from '@vendia/serverless-express/src/logger';
 
 @Controller('whatsapp-webhook')
 export class WhatsAppController {

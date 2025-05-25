@@ -1,26 +1,25 @@
-import {OpenAI} from 'openai';
-import {  unifiedSystemPrompt } from './constants';
+import { Injectable } from '@nestjs/common';
+import { AnthropicService } from './anthropic';
+import { OpenAiService } from './openai';
 
+@Injectable()
+export class NlpService {
+  constructor(
+    private anthropicService: AnthropicService,
+    private openAiService: OpenAiService
+  ) {}
 
-export class OpenAiService {
-    private openai: OpenAI;
-
-constructor() {
-    this.openai = new OpenAI({
-      apiKey: process.env['OPENAI_API_KEY'],
-    });
+  async generateReply(
+    userInput: string,
+    systemPrompt: string,
+    provider: 'openai' | 'anthropic' = 'anthropic'
+  ): Promise<string> {
+    if (provider === 'openai') {
+      return this.openAiService.generateReply(userInput, systemPrompt);
+    } else if (provider === 'anthropic') {
+      return this.anthropicService.generateReply(userInput, systemPrompt);
+    } else {
+      throw new Error('Invalid provider specified');
+    }
   }
-
-  async generateReply(userInput: string, prompt: string = unifiedSystemPrompt): Promise<string> {
-    const chatCompletion = await this.openai.chat.completions.create({
-      model: "o4-mini",
-      messages: [
-        { role: 'system', content: prompt },
-        { role: 'user', content: userInput },
-      ],
-    });
-
-    return chatCompletion.choices[0].message.content?.trim() || '';
-}
-
 }

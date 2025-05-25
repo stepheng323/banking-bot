@@ -1,20 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
-// import { UserRepo } from '@bank-bot/db';
+import { UserRepo } from '@bank-bot/db';
 import { ActiveSession, ParsedWhatsAppMessage } from '@bank-bot/types';
-import { OpenAiService, unifiedSystemPrompt } from '@bank-bot/nlp';
+import { NlpService, unifiedSystemPrompt } from '@bank-bot/nlp';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
 @Injectable()
 export class ProcessMessage {
   constructor(
-    // private userRepo: UserRepo,
-    private openAI: OpenAiService,
+    private userRepo: UserRepo,
+    private llm: NlpService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
   async handleMessage(message: ParsedWhatsAppMessage) {
-    const returningUser = { firstname: 'sss' }; //await this.userRepo.findUserByPhoneNumber(message.from);
+    const returningUser = await this.userRepo.findUserByPhoneNumber(
+      message.from
+    );
     const sessionData = await this.cacheManager.get<string>(
       `${message.from}-session`
     );
@@ -32,7 +34,7 @@ export class ProcessMessage {
         )}.`
       : '';
 
-    const nlpResponse = await this.openAI.generateReply(
+    const nlpResponse = await this.llm.generateReply(
       message.content,
       `${unifiedSystemPrompt} ${context} ${sessionContext}`
     );
