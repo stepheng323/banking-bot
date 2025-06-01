@@ -64,18 +64,18 @@ export interface ActiveSession {
     | 'transfer_money'
     | 'check_balance'
     | 'transaction_history'
-    | 'onboarding'; // Current intent
-  missingFields?: string[]; // List of fields that are still missing
+    | 'onboarding';
+  missingFields?: string[];
   entities?: {
-    amount?: number; // For transfer_money
-    recipient_account?: string; // For transfer_money
-    recipient_bank?: string; // For transfer_money
-    source_account?: string; // For transfer_money
-    account_type?: string; // For check_balance and transaction_history
-    time_range?: string; // For transaction_history
-    name?: string; // For onboarding
-    bank?: string; // For onboarding
-    account_number?: string; // For onboarding
-    [key: string]: string | number | null | undefined; // Additional entities extracted from the user's input
+    amount?: number;
+    recipient_account?: string;
+    recipient_bank?: string;
+    source_account?: string;
+    account_type?: string;
+    time_range?: string;
+    name?: string;
+    bank?: string;
+    account_number?: string;
+    [key: string]: string | number | null | undefined;
   };
 }

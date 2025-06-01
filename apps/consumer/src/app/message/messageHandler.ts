@@ -4,13 +4,18 @@ import { ActiveSession, ParsedWhatsAppMessage } from '@bank-bot/types';
 import { NlpService, unifiedSystemPrompt } from '@bank-bot/nlp';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { OnboardingHandler } from './handlers/onboarding.handler';
+import { WhatsAppService } from '@bank-bot/meta';
+import { onboardingMessage } from './constants';
 
 @Injectable()
 export class ProcessMessage {
   constructor(
     private userRepo: UserRepo,
     private llm: NlpService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private onboardingHandler: OnboardingHandler,
+    private whatsappService: WhatsAppService
   ) {}
 
   async handleMessage(message: ParsedWhatsAppMessage) {
@@ -24,9 +29,25 @@ export class ProcessMessage {
       ? (JSON.parse(sessionData) as ActiveSession)
       : ({} as ActiveSession);
 
-    const context = returningUser
-      ? `The user's name is ${returningUser.firstname}. Refer to them by their first name in replies.`
-      : `This is the user's first interaction. Greet them warmly and guide them through onboarding.`;
+    if (activeSession.intent) {
+      return this.routeToHandler(activeSession.intent, message, activeSession); //goes to onboarding for now
+    }
+
+    if (!returningUser && !activeSession.intent) {
+      await this.whatsappService.sendTextMessage(
+        message.from,
+        onboardingMessage
+      );
+
+      return this.cacheManager.set(
+        `${message.from}-session`,
+        JSON.stringify({
+          ...activeSession,
+          intent: 'onboarding',
+          missingFields: ['bvn'],
+        })
+      );
+    }
 
     const sessionContext = activeSession
       ? `The user has already provided the following details: ${JSON.stringify(
@@ -36,21 +57,43 @@ export class ProcessMessage {
 
     const nlpResponse = await this.llm.generateReply(
       message.content,
-      `${unifiedSystemPrompt} ${context} ${sessionContext}`
+      sessionContext
+        ? `${unifiedSystemPrompt} ${sessionContext}`
+        : unifiedSystemPrompt
     );
 
     const { intent, entities, missing_fields, reply } = JSON.parse(nlpResponse);
 
-    if (intent === 'onboarding') {
-      if (missing_fields.length > 0) {
-        const updatedSession = { ...activeSession, ...entities };
-        await this.cacheManager.set(`${message.from}-session`, updatedSession);
-        console.log('Response: ', reply);
-      } else {
-        console.log('Response: Thank you! Your onboarding is complete.');
-      }
-    } else {
-      console.log('Response: ', reply);
+    return this.routeToHandler(intent, message, activeSession, {
+      entities,
+      missing_fields,
+      reply,
+    });
+  }
+
+  private async routeToHandler(
+    intent: string,
+    message: ParsedWhatsAppMessage,
+    activeSession: ActiveSession,
+    nlpResponse?: {
+      entities: unknown;
+      missing_fields: string[];
+      reply: string;
+    }
+  ) {
+    switch (intent) {
+      case 'onboarding':
+        return this.onboardingHandler.handle(message, activeSession);
+      case 'balance':
+        return 'balance';
+      case 'transfer':
+        return 'transfer';
+      default:
+        return {
+          success: true,
+          message:
+            "I'm not sure how to help with that. You can ask about your balance, make a transfer, or get help with onboarding.",
+        };
     }
   }
 }

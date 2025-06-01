@@ -20,6 +20,9 @@ export class ConfigService implements OnModuleInit {
     DATABASE_URL: 'DATABASE_URL',
     SECRET_NAME: 'SECRET_NAME',
     ANTHROPIC_API_KEY: 'ANTHROPIC_API_KEY',
+    META_PHONE_NUMBER_ID: 'META_PHONE_NUMBER_ID',
+    META_ACCESS_TOKEN: 'META_ACCESS_TOKEN',
+    MONO_SECRET_KEY: 'MONO_SECRET_KEY',
   } as const;
 
   public static readonly ConfigKey = ConfigService.configKeys;

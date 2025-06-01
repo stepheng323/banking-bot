@@ -8,12 +8,17 @@ import { NlpModule } from '@bank-bot/nlp';
 import { ConfigModule, ConfigService } from '@bank-bot/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { createKeyv } from '@keyv/redis';
+import { OnboardingHandler } from './message/handlers/onboarding.handler';
+import { MetaModule } from '@bank-bot/meta';
+import { BankingModule } from '@bank-bot/banking';
 
 @Module({
   imports: [
     RepoModule,
     KyselyModule,
     NlpModule,
+    MetaModule,
+    BankingModule,
     CacheModule.registerAsync({
       imports: [ConfigModule],
       isGlobal: true,
@@ -31,6 +36,9 @@ import { createKeyv } from '@keyv/redis';
     QueueClient,
     UserRepo,
     ProcessMessage,
+    OnboardingHandler,
+    // BalanceHandler,
+    // TransferHandler,
   ],
 })
 export class AppModule {}

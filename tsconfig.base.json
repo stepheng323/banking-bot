@@ -16,10 +16,12 @@
     "baseUrl": ".",
     "paths": {
       "@bank-bot/aws": ["libs/aws/src/index.ts"],
+      "@bank-bot/banking": ["libs/banking/src/index.ts"],
       "@bank-bot/config": ["libs/config/src/index.ts"],
       "@bank-bot/db": ["libs/db/src/index.ts"],
+      "@bank-bot/meta": ["libs/meta/src/index.ts"],
       "@bank-bot/nlp": ["libs/nlp/src/index.ts"],
-      "@bank-bot/types": ["libs/types/src/index.ts"],
+      "@bank-bot/types": ["libs/types/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
