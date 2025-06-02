@@ -5,7 +5,7 @@ import { NlpService } from './nlp.service';
 import { ConfigModule } from '@bank-bot/config';
 
 @Module({
-  imports: [ConfigModule], // Import ConfigModule to provide ConfigService
+  imports: [ConfigModule],
   providers: [AnthropicService, OpenAiService, NlpService],
   exports: [NlpService],
 })

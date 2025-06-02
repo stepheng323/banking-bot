@@ -65,6 +65,7 @@ export interface ActiveSession {
     | 'check_balance'
     | 'transaction_history'
     | 'onboarding';
+  stage?: 'bvn_input' | 'otp_input' | 'complete';
   missingFields?: string[];
   entities?: {
     amount?: number;
@@ -76,6 +77,6 @@ export interface ActiveSession {
     name?: string;
     bank?: string;
     account_number?: string;
-    [key: string]: string | number | null | undefined;
+    [key: string]: any;
   };
 }

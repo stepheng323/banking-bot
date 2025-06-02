@@ -30,7 +30,7 @@ export class ProcessMessage {
       : ({} as ActiveSession);
 
     if (activeSession.intent) {
-      return this.routeToHandler(activeSession.intent, message, activeSession); //goes to onboarding for now
+      return this.routeToIntentHandler(activeSession.intent, message, activeSession);
     }
 
     if (!returningUser && !activeSession.intent) {
@@ -44,13 +44,13 @@ export class ProcessMessage {
         JSON.stringify({
           ...activeSession,
           intent: 'onboarding',
-          missingFields: ['bvn'],
+          missingFields: ['bvn', 'otp'],
         })
       );
     }
 
     const sessionContext = activeSession
-      ? `The user has already provided the following details: ${JSON.stringify(
+      ? `The user is already onboarded and has already provided the following details: ${JSON.stringify(
           activeSession
         )}.`
       : '';
@@ -64,14 +64,14 @@ export class ProcessMessage {
 
     const { intent, entities, missing_fields, reply } = JSON.parse(nlpResponse);
 
-    return this.routeToHandler(intent, message, activeSession, {
+    return this.routeToIntentHandler(intent, message, activeSession, {
       entities,
       missing_fields,
       reply,
     });
   }
 
-  private async routeToHandler(
+  private async routeToIntentHandler(
     intent: string,
     message: ParsedWhatsAppMessage,
     activeSession: ActiveSession,

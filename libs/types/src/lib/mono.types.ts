@@ -6,13 +6,42 @@ interface VerificationMethod {
 }
 
 export interface BvnLookupData {
-  session_id: string;
-  bvn: string;
-  methods: VerificationMethod[];
+  status: string;
+  message: string;
+  data: {
+    session_id: string;
+    bvn: string;
+    methods: VerificationMethod[];
+  };
 }
 
 export interface BvnVerifyRequest {
   method: VerificationMethodType;
-  phone_number: string;
+  phoneNumber?: string;
 }
 
+export interface MonoResponse<T> {
+  status: string;
+  message: string;
+  data: T;
+}
+
+export interface OtpVerifyRequest {
+  otp: string;
+}
+
+interface Institution {
+  name: string;
+  branch: string;
+  bank_code: string;
+}
+
+export interface BankAccount {
+  account_name: string;
+  account_number: string;
+  account_type: 'SAVINGS' | 'CURRENT';
+  account_designation: 'OTHERS';
+  institution: Institution;
+}
+
+export type BankAccountsMonoResponse = MonoResponse<BankAccount[]>;

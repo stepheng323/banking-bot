@@ -1,5 +1,11 @@
 import { ConfigService } from '@bank-bot/config';
-import { BvnLookupData, BvnVerifyRequest } from '@bank-bot/types';
+import {
+  BankAccountsResponse,
+  BvnLookupData,
+  BvnVerifyRequest,
+  MonoResponse,
+  OtpVerifyRequest,
+} from '@bank-bot/types';
 import { Injectable } from '@nestjs/common';
 
 interface BvnLookupRequest {
@@ -15,15 +21,17 @@ export class Mono {
 
   private async monoFetch<TRequest = unknown, TResponse = unknown>(
     endpoint: string,
-    body?: TRequest
+    body?: TRequest,
+    xSessionId?: string
   ): Promise<TResponse> {
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: 'POST',
         headers: {
-          accept: 'application/json',
-          'content-type': 'application/json',
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
           'mono-sec-key': this.configService.getConfig('MONO_SECRET_KEY'),
+          ...(xSessionId && { 'x-session-id': xSessionId }),
         },
         ...(body && { body: JSON.stringify(body) }),
       });
@@ -34,7 +42,7 @@ export class Mono {
       }
 
       const result = await response.json();
-      return result.data;
+      return result;
     } catch (error) {
       console.error(`Error calling Mono API ${endpoint}:`, error);
       throw error;
@@ -42,6 +50,34 @@ export class Mono {
   }
 
   async initiateBvnLookup(bvn: string): Promise<BvnLookupData> {
+    if (process.env['MOCK_MONO'] == 'true')
+      return {
+        status: 'success',
+        message: 'BVN lookup successful',
+        data: {
+          session_id: '74c8fe70-ea2c-458e-a99f-3f7a6061632c',
+          bvn: '01234567891',
+          methods: [
+            {
+              method: 'email',
+              hint: 'An email with a verification code will be sent to tomi***jr@gmail.com',
+            },
+            {
+              method: 'phone',
+              hint: 'Sms with a verification code will be sent to phone 0818***6496',
+            },
+            {
+              method: 'phone_1',
+              hint: 'Sms with a verification code will be sent to phone 0818***9343',
+            },
+            {
+              method: 'alternate_phone',
+              hint: 'Sms with a verification code will be sent to your alternate phone number',
+            },
+          ],
+        },
+      };
+
     return this.monoFetch<BvnLookupRequest, BvnLookupData>(
       '/lookup/bvn/initiate',
       {
@@ -51,7 +87,59 @@ export class Mono {
     );
   }
 
-  async verifyBvn(data: BvnVerifyRequest): Promise<null> {
-    return this.monoFetch<BvnVerifyRequest, null>('/lookup/bvn/verify', data);
+  async verifyBvn(
+    sessionId: string,
+    body: BvnVerifyRequest
+  ): Promise<MonoResponse<null>> {
+    if (process.env['MOCK_MONO'] == 'true')
+      return {
+        status: 'success',
+        message: 'BVN verification successful',
+        data: null,
+      };
+    return this.monoFetch<BvnVerifyRequest, MonoResponse<null>>(
+      '/lookup/bvn/verify',
+      body,
+      sessionId
+    );
+  }
+  async verifyOtp(
+    sessionId: string,
+    body: OtpVerifyRequest
+  ): Promise<MonoResponse<BankAccountsResponse>> {
+    if (process.env['MOCK_MONO'] == 'true')
+      return {
+        status: 'successful',
+        message: 'BVN bank accounts successfully fetched.',
+        data: [
+          {
+            account_name: 'Samuel Olamide',
+            account_number: '1234567890',
+            account_type: 'SAVINGS',
+            account_designation: 'OTHERS',
+            institution: {
+              name: 'First Bank',
+              branch: '4659818',
+              bank_code: '011',
+            },
+          },
+          {
+            account_name: 'Olamide Samuel',
+            account_number: '1234509384',
+            account_type: 'CURRENT',
+            account_designation: 'OTHERS',
+            institution: {
+              name: 'Zenith Bank',
+              branch: '4661483',
+              bank_code: '00711',
+            },
+          },
+        ],
+      };
+    return this.monoFetch<OtpVerifyRequest, MonoResponse<BankAccountsResponse>>(
+      '/lookup/bvn/details',
+      body,
+      sessionId
+    );
   }
 }

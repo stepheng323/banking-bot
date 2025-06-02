@@ -29,7 +29,6 @@ export class PollMessages implements OnModuleInit {
 
         for (const msg of messages) {
           const parsedMessage = JSON.parse(msg.Body);
-          console.log('Received message:', parsedMessage);
 
           await this.handleUserMessage.handleMessage(parsedMessage);
           await this.client.deleteMessage({
