@@ -28,19 +28,48 @@ type WhatsAppMessage = {
   text?: { body: string };
   image?: { id: string; mime_type: string; caption?: string };
   audio?: { id: string; mime_type: string };
+  interactive?: {
+    type: 'list_reply' | 'button_reply';
+    list_reply?: {
+      id: string;
+      title: string;
+      description?: string;
+    };
+    button_reply?: {
+      id: string;
+      title: string;
+    };
+  };
 };
 
 export type ParsedWhatsAppMessage =
   | {
-      kind: 'text';
+      type: 'text' |  'interactive';
       from: string;
       senderName?: string;
       messageId: string;
       content: string;
       timestamp: string;
+      interactive?: {
+        type: 'list_reply' | 'button_reply' | 'flow_reply';
+        list_reply?: {
+          id: string;
+          title: string;
+          description?: string;
+        };
+        button_reply?: {
+          id: string;
+          title: string;
+        };
+        flow_reply?: {
+          flow_token: string;
+          flow_action: string;
+          field_values: Record<string, string>;
+        };
+      };
     }
   | {
-      kind: 'image';
+      type: 'image';
       from: string;
       senderName?: string;
       messageId: string;
@@ -50,7 +79,7 @@ export type ParsedWhatsAppMessage =
       timestamp: string;
     }
   | {
-      kind: 'audio';
+      type: 'audio';
       from: string;
       senderName?: string;
       messageId: string;
@@ -65,7 +94,14 @@ export interface ActiveSession {
     | 'check_balance'
     | 'transaction_history'
     | 'onboarding';
-  stage?: 'bvn_input' | 'otp_input' | 'complete';
+  stage?:
+    | 'bvn_input'
+    | 'bvn_verification'
+    | 'otp_input'
+    | 'account_selection'
+    | 'account_confirmation'
+    | 'complete'
+    | undefined;
   missingFields?: string[];
   entities?: {
     amount?: number;
@@ -80,3 +116,43 @@ export interface ActiveSession {
     [key: string]: any;
   };
 }
+
+export function isInteractiveMessage(message: ParsedWhatsAppMessage): message is {
+  type: 'interactive';
+  from: string;
+  senderName?: string;
+  messageId: string;
+  content: string;
+  timestamp: string;
+  interactive?: {
+    type: 'list_reply' | 'button_reply' | 'flow_reply';
+    list_reply?: {
+      id: string;
+      title: string;
+      description?: string;
+    };
+    button_reply?: {
+      id: string;
+      title: string;
+    };
+    flow_reply?: {
+      flow_token: string;
+      flow_action: string;
+      field_values: Record<string, string>;
+    };
+  };
+} {
+  return message.type === 'interactive';
+}
+
+export function isTextMessage(message: ParsedWhatsAppMessage): message is {
+  type: 'text';
+  from: string;
+  senderName?: string;
+  messageId: string;
+  content: string;
+  timestamp: string;
+} {
+  return message.type === 'text';
+}
+

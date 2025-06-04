@@ -36,7 +36,7 @@ import { BankingModule } from '@bank-bot/banking';
     QueueClient,
     UserRepo,
     ProcessMessage,
-    OnboardingHandler
+    OnboardingHandler,
   ],
 })
 export class AppModule {}

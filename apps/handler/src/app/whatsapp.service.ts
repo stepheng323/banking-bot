@@ -24,13 +24,13 @@ export class WhatsappService {
     switch (message.type) {
       case 'text':
         return {
-          kind: 'text',
+          type: 'text',
           ...base,
           content: message.text?.body || '',
         };
       case 'image':
         return {
-          kind: 'image',
+          type: 'image',
           ...base,
           content: message.image?.id || '',
           mimeType: message.image?.mime_type || '',
@@ -38,10 +38,16 @@ export class WhatsappService {
         };
       case 'audio':
         return {
-          kind: 'audio',
+          type: 'audio',
           ...base,
           content: message.audio?.id || '',
           mimeType: message.audio?.mime_type || '',
+        };
+      case 'interactive':
+        return {
+          type: 'interactive',
+          ...base,
+          content: message.interactive.button_reply.id
         };
       default:
         return null;

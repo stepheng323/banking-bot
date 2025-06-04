@@ -1,16 +1,13 @@
-export const onboardingMessage = `*👋 Welcome to FusePay!* 
+export const getOnboardingMessage = (
+  userName: string
+) => `Hey ${userName} 👋 *Welcome to FusePay!*
 
-I'm your intelligent banking assistant that fuses all your bank accounts into one powerful service! 🎯
+Your all-in-one banking assistant 🎯
 
-*What you can do:*
-━━━━━━━━━━━━━━━
-▪️ Connect multiple bank accounts instantly 🔗
-▪️ Access combined balances in one place 💰
-▪️ Make transfers from any linked account 💸
-▪️ Track all transactions seamlessly 📊
+*Quick Features:*
+• Link multiple accounts 🏦
+• View total balance 💰
+• Easy transfers 💸
+• Track spending 📊
 
-*Getting Started* 🚀
-━━━━━━━━━━━━━━━
-To get started, I'll need to link your bank account.
-
-Please reply with your *BVN* to begin. 🔐`;
+`

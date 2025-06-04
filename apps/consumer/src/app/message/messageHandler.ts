@@ -6,7 +6,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { OnboardingHandler } from './handlers/onboarding.handler';
 import { WhatsAppService } from '@bank-bot/meta';
-import { onboardingMessage } from './constants';
+import { getOnboardingMessage } from './constants';
 
 @Injectable()
 export class ProcessMessage {
@@ -34,9 +34,9 @@ export class ProcessMessage {
     }
 
     if (!returningUser && !activeSession.intent) {
-      await this.whatsappService.sendTextMessage(
+      await this.whatsappService.sendIntroMessage(
         message.from,
-        onboardingMessage
+        getOnboardingMessage(message.senderName)
       );
 
       return this.cacheManager.set(
@@ -44,8 +44,10 @@ export class ProcessMessage {
         JSON.stringify({
           ...activeSession,
           intent: 'onboarding',
-          missingFields: ['bvn', 'otp'],
-        })
+          entities: {},
+          stage: 'bvn_input',
+        }),
+        600000
       );
     }
 
@@ -81,6 +83,7 @@ export class ProcessMessage {
       reply: string;
     }
   ) {
+    console.log({intent, message, activeSession});
     switch (intent) {
       case 'onboarding':
         return this.onboardingHandler.handle(message, activeSession);

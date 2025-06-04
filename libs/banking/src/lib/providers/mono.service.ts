@@ -1,6 +1,6 @@
 import { ConfigService } from '@bank-bot/config';
 import {
-  BankAccountsResponse,
+  BankAccountsMonoResponse,
   BvnLookupData,
   BvnVerifyRequest,
   MonoResponse,
@@ -106,7 +106,7 @@ export class Mono {
   async verifyOtp(
     sessionId: string,
     body: OtpVerifyRequest
-  ): Promise<MonoResponse<BankAccountsResponse>> {
+  ): Promise<BankAccountsMonoResponse> {
     if (process.env['MOCK_MONO'] == 'true')
       return {
         status: 'successful',
@@ -136,7 +136,7 @@ export class Mono {
           },
         ],
       };
-    return this.monoFetch<OtpVerifyRequest, MonoResponse<BankAccountsResponse>>(
+    return this.monoFetch<OtpVerifyRequest, BankAccountsMonoResponse>(
       '/lookup/bvn/details',
       body,
       sessionId

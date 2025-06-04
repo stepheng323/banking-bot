@@ -1,10 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ParsedWhatsAppMessage, ActiveSession } from '@bank-bot/types';
+import {
+  ParsedWhatsAppMessage,
+  ActiveSession,
+  isInteractiveMessage,
+  isTextMessage,
+} from '@bank-bot/types';
 import { UserRepo } from '@bank-bot/db';
 import { WhatsAppService } from '@bank-bot/meta';
 import { Mono } from '@bank-bot/banking';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { getOnboardingMessage } from '../constants';
 
 @Injectable()
 export class OnboardingHandler {
@@ -15,78 +21,63 @@ export class OnboardingHandler {
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
-  private async handleBvn(
+  private async handleOnboardingFlow(
     message: ParsedWhatsAppMessage,
     activeSession: ActiveSession
   ) {
-    const input = message.content;
-
-    if (input.length !== 10) {
-      return this.whatsapp.sendTextMessage(
-        message.from,
-        'Please provide your BVN.'
-      );
-    }
-    const bvnLookup = await this.mono.initiateBvnLookup(input);
-    if (bvnLookup.status !== 'success') {
-      console.log('BVN lookup failed', bvnLookup);
-    }
-
-    const {
-      data: { bvn, session_id: sessionId },
-    } = bvnLookup;
-
-    await this.mono.verifyBvn(sessionId, { method: 'phone' });
-
-    await this.cacheManager.set(
-      `${message.from}-session`,
-      JSON.stringify({
-        ...activeSession,
-        missingFields: ['otp'],
-        entities: {
-          bvn,
-          sessionId,
-        },
-        stage: 'otp_input',
-      })
-    );
-    return this.whatsapp.sendTextMessage(message.from, 'BVN provided.');
-  }
-
-  private async handleOtp(
-    message: ParsedWhatsAppMessage,
-    activeSession: ActiveSession
-  ) {
-    const otp = message.content;
-    const result = await this.mono.verifyOtp(activeSession.entities.sessionId, {
-      otp,
-    });
-    if (result.status === 'successful') {
-      await this.cacheManager.set(
-        `${message.from}-session`,
-        JSON.stringify({
-          ...activeSession,
-          stage: 'account_selection',
-          entities: {
-            ...activeSession.entities,
-            accounts: result.data.data,
-          },
-        })
-      );
-      // send account selection message to user
-      return this.whatsapp.sendTextMessage(
-        message.from,
-        'Please select an account.'
-      );
-    }
+    return this.whatsapp.sendOnboardingFlow(message.from);
   }
 
   async handle(message: ParsedWhatsAppMessage, activeSession: ActiveSession) {
-    switch (activeSession.stage) {
-      case 'bvn_input':
-        return this.handleBvn(message, activeSession);
-      case 'otp_input':
-        return this.handleOtp(message, activeSession);
+    if (
+      isInteractiveMessage(message) &&
+      message.content === 'start_onboarding'
+    ) {
+      return this.handleOnboardingFlow(message, activeSession);
     }
+
+    if (activeSession.stage) {
+      switch (activeSession.stage) {
+        case 'bvn_input':
+          if (isTextMessage(message) && /^\d{11}$/.test(message.content)) {
+            const bvnLookup = await this.mono.initiateBvnLookup(
+              message.content
+            );
+            if (bvnLookup.status !== 'success') {
+              return this.whatsapp
+                .sendTextMessage(
+                  message.from,
+                  '❌ BVN verification failed. Please try again with a valid BVN.'
+                )
+                .then(() => this.handleOnboardingFlow(message, activeSession));
+            }
+
+            const {
+              data: { bvn, session_id: sessionId },
+            } = bvnLookup;
+            await this.mono.verifyBvn(sessionId, { method: 'phone' });
+
+            // Update session
+            await this.cacheManager.set(
+              `${message.from}-session`,
+              JSON.stringify({
+                ...activeSession,
+                stage: 'otp_input',
+                entities: {
+                  ...activeSession.entities,
+                  bvn,
+                  sessionId,
+                },
+              })
+            );
+          }
+          return this.handleOnboardingFlow(message, activeSession);
+
+        default:
+          return this.handleOnboardingFlow(message, activeSession);
+      }
+    }
+
+    return this.handleOnboardingFlow(message, activeSession);
   }
 }
